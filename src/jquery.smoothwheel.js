@@ -9,16 +9,16 @@
 (function ($) {
 
     var self = this, container, running=false, currentY = 0, targetY = 0, oldY = 0, maxScrollTop= 0, minScrollTop, direction, onRenderCallback=null,
-            deceleration = 0.95, // higher value for slower deceleration
+            fricton = 0.95, // higher value for slower deceleration
             vy = 0,
-            stepAmt = 0.1,
-            minMovement= 1,
+            stepAmt = 1,
+            minMovement= 0.1,
             ts=0.1;
 
     var updateScrollTarget = function (amt) {
         targetY += amt;
         vy += (targetY - oldY) * stepAmt;
-      //  vy += ts * (targetY-oldY);
+      
         oldY = targetY;
 
 
@@ -33,10 +33,11 @@
                     vy = 0;
                     currentY = minScrollTop;
                 }
-           // currentY = Math.round(currentY);
+           
             container.scrollTop(-currentY);
 
-            vy = (vy * deceleration);
+            vy *= fricton;
+            
          //   vy += ts * (currentY-targetY);
             // scrollTopTweened += settings.tweenSpeed * (scrollTop - scrollTopTweened);
             // currentY += ts * (targetY - currentY);
@@ -55,15 +56,15 @@
     var onWheel = function (e) {
         e.preventDefault();
         var evt = e.originalEvent;
-        var delta = evt.detail ? -(evt.detail) : (evt.wheelDeltaY || evt.wheelDelta || 0);
+       
+        var delta = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
         var dir = delta < 0 ? -1 : 1;
         if (dir != direction) {
             vy = 0;
             direction = dir;
         }
-        var dy = normalizeWheelDelta(delta);
-     //   var dy  = delta;
-        updateScrollTarget(dy);
+        
+        updateScrollTarget(delta);
     }
 
     /*
@@ -77,7 +78,9 @@
                 window.msRequestAnimationFrame ||
                 function (callback) {
                     window.setTimeout(callback, 1000 / 60);
-                };
+                }; 
+              
+                
     })();
 
     /*
