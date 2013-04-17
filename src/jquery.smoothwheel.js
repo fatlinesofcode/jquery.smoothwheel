@@ -63,6 +63,9 @@
             vy = 0;
             direction = dir;
         }
+
+        //reset currentY in case non-wheel scroll has occurred (scrollbar drag, etc.)
+        currentY = -container.scrollTop();
         
         updateScrollTarget(delta);
     }
@@ -123,7 +126,11 @@
                 container = $(this);
                 container.bind("mousewheel", onWheel);
                 container.bind("DOMMouseScroll", onWheel);
-                currentY = targetY = 0;
+
+                //set target/old/current Y to match current scroll position to prevent jump to top of container
+                targetY = oldY = container.get(0).scrollTop;
+                currentY = -targetY;
+                
                 minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
                 if(options.onRender){
                     onRenderCallback = options.onRender;
