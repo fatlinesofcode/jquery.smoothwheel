@@ -18,7 +18,7 @@
     var updateScrollTarget = function (amt) {
         targetY += amt;
         vy += (targetY - oldY) * stepAmt;
-      
+
         oldY = targetY;
 
 
@@ -33,11 +33,11 @@
                     vy = 0;
                     currentY = minScrollTop;
                 }
-           
+
             container.scrollTop(-currentY);
 
             vy *= fricton;
-            
+
          //   vy += ts * (currentY-targetY);
             // scrollTopTweened += settings.tweenSpeed * (scrollTop - scrollTopTweened);
             // currentY += ts * (targetY - currentY);
@@ -56,7 +56,7 @@
     var onWheel = function (e) {
         e.preventDefault();
         var evt = e.originalEvent;
-       
+
         var delta = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
         var dir = delta < 0 ? -1 : 1;
         if (dir != direction) {
@@ -66,8 +66,25 @@
 
         //reset currentY in case non-wheel scroll has occurred (scrollbar drag, etc.)
         currentY = -container.scrollTop();
-        
+
         updateScrollTarget(delta);
+    }
+
+    var arrowKeyScroll = function (event) {
+        var ArrowKeys = {
+            'up': '38',
+            'down': '40'
+        }
+
+        if (event.keyCode == ArrowKeys.up || event.keyCode == ArrowKeys.down ) {
+            event.preventDefault();
+            if (event.keyCode == ArrowKeys.up) {
+                event.originalEvent.wheelDelta = 120
+            } else {
+                event.originalEvent.wheelDelta = -120
+            }
+            onWheel(event);
+        }
     }
 
     /*
@@ -81,9 +98,9 @@
                 window.msRequestAnimationFrame ||
                 function (callback) {
                     window.setTimeout(callback, 1000 / 60);
-                }; 
-              
-                
+                };
+
+
     })();
 
     /*
@@ -126,17 +143,23 @@
                 container = $(this);
                 container.bind("mousewheel", onWheel);
                 container.bind("DOMMouseScroll", onWheel);
+                container.bind("keydown", arrowKeyScroll);
 
                 //set target/old/current Y to match current scroll position to prevent jump to top of container
                 targetY = oldY = container.get(0).scrollTop;
                 currentY = -targetY;
-                
-                minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
+
+                if(!options.minScrollTopFn) {
+                    minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
+                }
+                else {
+                    minScrollTop = options.minScrollTopFn(container, options)
+                }
+
                 if(options.onRender){
                     onRenderCallback = options.onRender;
                 }
                 if(options.remove){
-                    log("122","smoothWheel","remove", "");
                     running=false;
                     container.unbind("mousewheel", onWheel);
                     container.unbind("DOMMouseScroll", onWheel);
