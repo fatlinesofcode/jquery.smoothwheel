@@ -8,23 +8,26 @@
  */
 (function ($) {
 
-    var self = this, container, running=false, currentY = 0, targetY = 0, oldY = 0, maxScrollTop= 0, minScrollTop, direction, onRenderCallback=null,
-            fricton = 0.95, // higher value for slower deceleration
+    var self = this, container, running=false, currentY = 0, targetY = 0, oldY = 0, maxScrollTop= 0, minScrollTop, direction,
             vy = 0,
-            stepAmt = 1,
-            minMovement= 0.1,
             ts=0.1;
+    var settings = {
+      friction: 0.95, // higher value for slower deceleration
+      stepAmt: 1,
+      minMovement: 0.1,
+      onRender: null,
+    };
 
     var updateScrollTarget = function (amt) {
         targetY += amt;
-        vy += (targetY - oldY) * stepAmt;
-      
+        vy += (targetY - oldY) * settings.stepAmt;
+
         oldY = targetY;
 
 
     }
     var render = function () {
-        if (vy < -(minMovement) || vy > minMovement) {
+        if (vy < -(settings.minMovement) || vy > settings.minMovement) {
 
             currentY = (currentY + vy);
             if (currentY > maxScrollTop) {
@@ -33,17 +36,17 @@
                     vy = 0;
                     currentY = minScrollTop;
                 }
-           
+
             container.scrollTop(-currentY);
 
-            vy *= fricton;
-            
+            vy *= settings.friction;
+
          //   vy += ts * (currentY-targetY);
             // scrollTopTweened += settings.tweenSpeed * (scrollTop - scrollTopTweened);
             // currentY += ts * (targetY - currentY);
 
-            if(onRenderCallback){
-                onRenderCallback();
+            if(settings.onRender){
+                settings.onRender();
             }
         }
     }
@@ -56,7 +59,7 @@
     var onWheel = function (e) {
         e.preventDefault();
         var evt = e.originalEvent;
-       
+
         var delta = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
         var dir = delta < 0 ? -1 : 1;
         if (dir != direction) {
@@ -66,7 +69,7 @@
 
         //reset currentY in case non-wheel scroll has occurred (scrollbar drag, etc.)
         currentY = -container.scrollTop();
-        
+
         updateScrollTarget(delta);
     }
 
@@ -81,9 +84,9 @@
                 window.msRequestAnimationFrame ||
                 function (callback) {
                     window.setTimeout(callback, 1000 / 60);
-                }; 
-              
-                
+                };
+
+
     })();
 
     /*
@@ -130,11 +133,8 @@
                 //set target/old/current Y to match current scroll position to prevent jump to top of container
                 targetY = oldY = container.get(0).scrollTop;
                 currentY = -targetY;
-                
+
                 minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
-                if(options.onRender){
-                    onRenderCallback = options.onRender;
-                }
                 if(options.remove){
                     log("122","smoothWheel","remove", "");
                     running=false;
