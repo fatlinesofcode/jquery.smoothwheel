@@ -123,6 +123,7 @@
     $.fn.smoothWheel = function () {
         //  var args = [].splice.call(arguments, 0);
         var options = jQuery.extend({}, arguments[0]);
+        settings = jQuery.extend(settings,options);
         return this.each(function (index, elm) {
 
             if(!('ontouchstart' in window)){
