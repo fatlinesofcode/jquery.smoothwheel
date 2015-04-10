@@ -71,6 +71,10 @@
         currentY = -container.scrollTop();
 
         updateScrollTarget(delta);
+
+        //add an additional height declaration to allow for elements that
+        //change height after initial page load.
+        minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
     }
 
     /*
