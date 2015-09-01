@@ -131,7 +131,10 @@
                 targetY = oldY = container.get(0).scrollTop;
                 currentY = -targetY;
                 
-                minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
+                $(window).resize(function(){
+                    minScrollTop = container.get(0).clientHeight - container.get(0).scrollHeight;
+                });
+                
                 if(options.onRender){
                     onRenderCallback = options.onRender;
                 }
